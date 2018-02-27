@@ -1,0 +1,95 @@
+spring:
+  application:
+  #配置应用名字
+    name: zuul-api-gateway
+
+  resources:
+    static-locations: classpath:/
+
+  http:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  cloud:
+    inetutils:
+      preferred-networks: 10.0.3
+      #指定网段10.0.3.0/24
+
+server:
+#配置服务端口
+  #port: 1101
+  port: 80
+  context-path: /
+
+#配置zuul的路由规则
+zuul:
+  routes:
+    api-jiayibilin-wechat:
+      path: /api-wechat/**
+      serviceId: microservice-jiayibilin-weChat
+    api-jiayibilin-webmanage:
+      path: /api-webmanage/**
+      serviceId: microservice-jiayibilin-webManage
+    api-jiayibilin-mysql:
+      path: /api-mysql/**
+      serviceId: microservice-jiayibilin-mySql
+    api-jiayibilin-app:
+      path: /api-app/**
+      serviceId: microservice-jiayibilin-app
+    api-jiayibilin-stsserver:
+      path: /api-stsserver/**
+      serviceId: microservice-jiayibilin-stsServer
+  sensitiveHeaders:
+  host:
+    socket-timeout-millis: 60000
+    connect-timeout-millis: 60000
+
+
+eureka:
+  client:
+    #开启健康检查
+    healthcheck:
+      enabled: true
+    #注册到服务中心
+    serviceUrl:
+      #defaultZone: http://XieJie:XieJie@125.216.243.177:1001/eureka/
+      #defaultZone: http://XieJie:XieJie@172.18.55.16:1001/eureka/
+      defaultZone: http://XieJie:XieJie@eureka-server:1001/eureka/
+
+  instance:
+    #续约到期时间（默认90秒）
+    lease-expiration-duration-in-seconds: 30
+    #续约更新时间间隔（默认30秒）
+    lease-renewal-interval-in-seconds: 10
+    #将instance-id设置为IP:端口的形式
+    instance-id: ${spring.cloud.client.ipAddress}:${server.port}
+    #注册到eureka server上IP地址
+    prefer-ip-address: true
+
+
+
+
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            #将Hystrix的超时时间改为5s
+            timeoutInMilliseconds: 5000
+
+#配置指定微服务的负载均衡策略为随机
+microservice-jiayibilin-weChat:
+  ribbon:
+    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule
+
+#提供Feign的压缩支持
+feign:
+  compression:
+    request:
+      enabled: true
+    response:
+      enabled: true
+
